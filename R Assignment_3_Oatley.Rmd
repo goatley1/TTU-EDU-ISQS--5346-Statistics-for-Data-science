@@ -1,0 +1,207 @@
+---
+author: "Alireza Sheikh-Zadeh, PhD"
+output:
+  word_document: default
+  html_document: default
+title: "R Assignment 3"
+---
+
+Document format: Follow the instructions given on the web page. Always review your solution word document before submission.
+
+Plagiarism: You are not allowed to share your write-up with your peers. It's okay to advise your peers about how to solve a problem, but you never share your own write-up.
+
+Problem 1: 40 points
+
+Problem 2: 40 points 
+
+Format: 20 points
+
+# Problem 1 (40 points)
+Use the charitable contributions data set:
+
+```{r}
+mydata <- read.csv("http://tiny.cc/charitabletax")
+```
+
+
+a. The Adjusted Gross Income (AGI) of a taxpayer is given in the variable "Income.AGI." Display the histogram of the "Income.AGI" data showing the relative frequency in the y-axis. Does it look normally distributed (from your subjective point of view, Yes or No)? (5 points)
+
+According to the histogram this data is not normally distributed.  It is skewed right.
+
+```{r}
+mean(mydata$Income.AGI)
+sd(mydata$Income.AGI)
+hist(mydata$Income.AGI, breaks = 20, main = 'Histogarm of Adjusted Gross Income', ylab = 'Relative Frequency', xlab =  'Adjusted Gross Income', col = 'green',freq=FALSE)
+```
+
+
+b. Simulate five times from a normal distribution having the same mean, standard deviation and sample size (n = 470) as for the "Income.AGI" data, and name these simulated data as sim1, sim2, sim3, sim4, and sim5. Then construct the histogram of each simulated data. (10 points)
+
+You can see below that when taking a random sample of 470 values using the mean and standard deviation of our AGI generally produces a normal distribution.
+
+```{r}
+# Hint: Find the mean() and sd() of the mydata$Income.AGI, then simulate normal instances by sim1 <- rnorm(470, mean, sd), sim2 <- rnorm(470, mean, sd), and .... then report hist() of sim1, sim2, ..... 
+mu <- mean(mydata$Income.AGI)
+sigma <- sd(mydata$Income.AGI)
+
+sim1 <- rnorm(470, mu, sigma)
+sim2 <- rnorm(470, mu, sigma)
+sim3 <- rnorm(470, mu, sigma)
+sim4 <- rnorm(470, mu, sigma)
+sim5 <- rnorm(470, mu, sigma)
+
+hist(sim1, freq = FALSE, main = 'Sim1 Histogram', xlab = 'Sim1 Value', ylab = 'Relative Frequency', col = 'blue' )
+hist(sim2, freq = FALSE, main = 'Sim2 Histogram', xlab = 'Sim2 Value', ylab = 'Relative Frequency', col = 'blue' )
+hist(sim3, freq = FALSE, main = 'Sim3 Histogram', xlab = 'Sim3 Value', ylab = 'Relative Frequency', col = 'blue' )
+hist(sim4, freq = FALSE, main = 'Sim4 Histogram', xlab = 'Sim4 Value', ylab = 'Relative Frequency', col = 'blue' )
+hist(sim5, freq = FALSE, main = 'Sim5 Histogram', xlab = 'Sim5 Value', ylab = 'Relative Frequency', col = 'blue' )
+```
+
+c.How many of the histograms you made in part b looks similar to the histogram of the original data (part a) (in terms of skewness, normal bell shape, and the overall appearance, from your points of view)? (2 points)
+
+None of the histograms in my simulations look like the original.  They are not nearly as skewed.  The simulations are all closer to the bell shape.
+
+
+d. Display the normal q-q plot of the "Income.AGI" data. Interpret the q-q plot for analyzing the normality of the data. (5 points)
+
+The Q-Q plot clearly demonstraights the skewness of our data.  In the plot we can see the points do not fit a 45 degree angle as would be expected.  Our Q-Q line allows us to see how far off normal our data is.  
+
+```{r}
+# Hint: You can use qqnorm and qqline functions. I did this in the lecture.
+qqnorm(mydata$Income.AGI, main = 'Normal Q-Q Plot of AGI' )
+qqline(mydata$Income.AGI)
+
+
+```
+
+
+e. Construct the q-q plot of the simulated data sets: sim1, sim2, sim3, sim4, sim5. (10 points)
+
+As you can see the simulation Q-Q Lines and their Q-Q plots are almost identical.  
+
+
+```{r}
+# Same process as part b, just need to use qqnorm and qqline instead of hist. Do no t forget to discuss your findings.
+qqnorm(sim1, main = 'Normal Q-Q Plot Sim1')
+qqline(sim1)
+qqnorm(sim2, main = 'Normal Q-Q Plot Sim2')
+qqline(sim2)
+qqnorm(sim3, main = 'Normal Q-Q Plot Sim3')
+qqline(sim3)
+qqnorm(sim4, main = 'Normal Q-Q Plot Sim4')
+qqline(sim4)
+qqnorm(sim5, main = 'Normal Q-Q Plot Sim5')
+qqline(sim5)
+
+```
+f. How many of the q-q plots you made in part e looks similar to the q-q plot of the original data (part d)? Overall after reviewing your answer to part c and f, the distribution of how many of the simulated data sets looks similar to the original data (zero or one or ... or 5)?  (3 points)
+
+As expected none of the Q-Q plots in our simulations look similar to the original data.  None of our simulations look like the original.  
+
+
+g. In this problem, we implicitly practiced the notion of hypothesis testing. Here, our null hypothesis is that the data is normally distributed, that's why in part b, we simulate data by normal distribution (rnorm using the same mean, sd, and size as the original data). The alternative hypothesis is that the data is not normally distributed. By looking at your answer to part f, you can estimate the probability that your data is similar to null hypothesis or not (This is called P-value; you learn it later!). For example, based on my evidence, zero of the simulated data are similarly distributed with the original data, then the p-value will be 0/5 = 0, which is less than 0.05, so we reject the null hypothesis and conclude that there is enough evidence that the data is not normally distributed. What is your p-value and conclusion? (5 points)
+
+Based on my simulations the p-value is 0/5 less than 0.05.  Thus, based on the observations of this simulation we must reject the null hypothesis. 
+
+# Problem 2 (40 points)
+Assume the following distribution is the true distribution that produces observable customer satisfaction data. These satisfaction data are obtained by sending emails to loyal customers. There is a link in the email to a survey, which customers can access and enter their survey data, should they decide to participate. No incentives (coupons, discounts, etc.) are given to encourage the customers to fill out this survey. The data are the respondent's answer to the question, "On your recent visit to our store, were you satisfied (overall) with your shopping experience? Answer "1" means "definitely unsatisfied," answer "5" means "highly satisfied" and all other answers are intermediate.
+
+| Satisfaction, Y= y  | p(y) |
+|---------------------|------|
+| 1                   | 0.01 |
+| 2                   | 0.02 |
+| 3                   | 0.02 |
+| 4                   | 0.05 |
+| 5                   | 0.90 |
+| Total               | 1.0  |
+
+a. Create a needle plot for the distribution of $Y$. Is $Y$ normally distributed? (5 points)
+
+Our plot of y shows that it is most certainly not normally distributed. It is skewed left.
+
+
+```{r}
+y = c(1, 2, 3, 4, 5) # and 
+p = c(.01, .02, .02, .05, .90)
+
+plot(y, p, type = "h",ylab = 'p(y)', main = 'Needle Plot of y and P(y)')
+points(y, p, pch = 18)
+
+```
+
+b. Simulate 10000 samples of satisfaction data, and the size of each sample is n = 30 customers. Then calculate the mean of each sample ($\bar{Y}$) and save it as an object called Ybar30. (10 points)
+
+Using the provided information, we created our totle number of samples n*NSIM.  We used the sample function with replacement to sample 300000 surveys.  By loading them in a n x 30 matrix we created a 10,000 x 30 matrix with our 10,000 samples of 30 surveys.  We then averaged the rows using rowMeans and stored that in Ybar30.  
+
+```{r}
+# Hint: 
+# You cab set n=1000 and NSIM = 10000
+n = 30
+NSIM = 10000
+# then 
+y = c(1, 2, 3, 4, 5) # and 
+p = c(.05, .10, .15, .20, .50)
+ntot = n*NSIM
+rv = sample(y,ntot ,p , replace = TRUE)
+rvm = matrix(rv, ncol = n, byrow = TRUE)
+Ybar30 = rowMeans(rvm)
+
+# just follow the same process as I explained in the video for the life insurance example.
+```
+
+
+c. Based on the central limit theorem, if the sample size will be large enough, the distribution of the sample mean will be normally distributed regardless of the distribution of the original random variable. Graph the histogram and q-q plot of Ybar30 that you produced in a. Is the distribution of Ybar30 normal? Is the sample size of n = 30 large enough to confirm the CLT? (5 points)
+
+By graphing the Q-Q plot with a Q-Q line we can see that in our simulation the Central Limit Theorem basicly holds true at 10k samples of 30.  However it does trail off on the edges.  Making our plot not quite normal.
+
+```{r}
+qqnorm(Ybar30, main = 'Q-Q Norm Demonstrating Central Lmit Therom')
+qqline(Ybar30)
+```
+
+d. repeat part a and b for n = 100. Save the sample means into an object called Ybar100. Is n = 100 large enough to confirm the CLT? (10 points)
+
+I'm assuming you meant parts b and c, because it makes no sense to make a needle plot without the probabilities of each mean.  While the Q-Q norm of Ybar100 is not perfect I believe it is still accurate enough to confirm the CLT.  Personally, I think n = 30 was relativly close enough.  Really, the CLT is a theory of convergence.  As our sample size and number of samples increases our distribution will converge to the normal shape.   
+
+```{r}
+n = 100
+NSIM = 10000
+# then 
+y = c(1, 2, 3, 4, 5) # and 
+p = c(.05, .10, .15, .20, .50)
+ntot = n*NSIM
+rv = sample(y,ntot ,p , replace = TRUE)
+rvm = matrix(rv, ncol = n, byrow = TRUE)
+Ybar100 = rowMeans(rvm)
+
+qqnorm(Ybar100, main = 'Q-Q Norm Demonstrating Central Lmit Therom')
+qqline(Ybar100)
+
+```
+
+
+
+
+e. Choose an appropriate n, and repeat part a and b to confirm the appropriate sample size for the CLT? (10 points)
+
+I chose n=10K and we can see that only one or two of our samples deviates from our Q-Q line.  Clearly as we increas our sample size our Q-Q plot will converge to the Q-Q line.
+
+```{r}
+
+n = 10000
+NSIM = 10000
+# then 
+y = c(1, 2, 3, 4, 5) # and 
+p = c(.05, .10, .15, .20, .50)
+ntot = n*NSIM
+rv = sample(y,ntot ,p , replace = TRUE)
+rvm = matrix(rv, ncol = n, byrow = TRUE)
+Ybar10000 = rowMeans(rvm)
+
+qqnorm(Ybar10000, main = 'Q-Q Norm Demonstrating Central Lmit Therom')
+qqline(Ybar10000)
+
+```
+
+
+

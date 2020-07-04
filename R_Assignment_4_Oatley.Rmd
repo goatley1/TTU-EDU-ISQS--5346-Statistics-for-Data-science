@@ -1,0 +1,276 @@
+---
+author: "Alireza Sheikh-Zadeh, PhD"
+output:
+  word_document: default
+  html_document: default
+title: "R Assignment 4"
+---
+
+Document format: Follow the instructions given on the web page. Always review your solution word document before submission.
+
+Plagiarism: You are not allowed to share your write-up with your peers. It's okay to advise your peers about how to solve a problem, but you never share your own write-up.
+
+Problem 1: 25 points
+
+Problem 2: 20 points 
+
+Problem 3: 15 points 
+
+Problem 4: 20 points 
+
+Format: 20 points
+
+
+# Problem 1
+A quality characteristic of interest for a tea-bag-filling process is the weight of the tea in the individual bags. The label weight on the package indicates that the mean amount is 5.37 grams of tea in a bag. Problems arise if the bags are under-filled or if the mean amount of tea in a bag exceeds the label weight. The accompanying data are the weights, in grams, of a sample of 50 tea bags produced in one hour by a single machine (data file Teabags.csv).
+
+```{r}
+
+data <- read.csv("https://goo.gl/ZCVUpc")
+Xbar <- mean(data$Teabags)
+sd <- sd(data$Teabags)
+n = length(data$Teabags)
+df = n-1
+Xbar
+sd
+n
+df
+```
+
+a) Construct a 95\% confidence interval estimate for the population mean weight of the tea bags. Interpret the interval. (10 points) 
+
+From the data, we can be 95% confident that the true value of mu lies between 5.45 and 5.55 grams of tea per bag or 5.45g <= mu <= 5.55g.
+
+```{r}
+se = sd/sqrt(n)
+qt = qt(.975,df)
+left = Xbar - se*qt
+right = Xbar +se*qt
+se
+qt
+round(left,2)
+round(right,2)
+
+```
+
+
+
+b) Is the company meeting the requirement set forth on the label that the mean amount of tea in a bag is 5.37 grams? (5 points) 
+
+From the data we can conclude that the company is over filling their tea bags. This mistake could result in excess cost, and missed profit forcasts.
+
+c) Explain how to understand the 95\% confidence interval via simulation. Use simulation in your answer. (10 points)
+
+We can construct the 95% confidence interval by simulation.  First we establist base variables for the number of simulations, and the number of samples in a simulation.  In our case we want 10,000 simulations of 50 samples.  Thus 10,000*50 gives us our number of observations 500,000.  Using the rnorm function in r we can randomly create 500K observations using the mean and standard deviation from our example above.  Converting this 500K vector of observations into a matrix with 10K rows gives us our simulations.  By averaging each row we get a mean for each simulation, and similarly a standard deviation.  We store these in vectors xbar and stdev.  Now we can use our mean and standard deviation vectors to create 10K lower and upper quantiles.  By taking the mean of the boolean statement (lower < mu & upper > mu) where 1 = true we can see that our mean is 95.17%.  Thus, 95 pecent of our simulations contain mu, and we can be be 95% confident that another random sample will produce a confidence interval that contains mu.  Conversly, 5% of our samples did not contain mu.
+
+```{r}
+# Note: Realize, of course, that the distributions that produce the data cannot possibly be normal, but do the simulation using normal distribution anyway.
+# Step-by-step help: 
+# Create normal random numbers based on the mean and stdev of the data.
+# set a sample size equal to the size of the data:
+
+n = length(data$Teabags)
+# simulate 10000 samples: 
+mean = Xbar
+nsim = 10000
+ntot = n*nsim 
+rv = rnorm(ntot, mean = mean, sd = sd)
+# convert data to a matrix
+rvm = matrix(rv, nrow = nsim)
+# find the means and sd of rows. To do so you can use apply function:
+xbar = apply(rvm, 1, mean) 
+stdev = apply(rvm, 1, sd)
+# Then find 95% lower bound and upper bound for all simulated samples: 
+lower = xbar - qt(1-.05/2, n-1)*sd/sqrt(n) 
+upper = xbar + qt(1-.05/2, n-1)*sd/sqrt(n)
+# We assume that the true mu is mu = mean(data$Teabags)
+lmean = mean(lower)
+umean = mean(upper)
+# What proportion of the constructed  intervals contain the true mu.
+
+mean(lower < Xbar & upper > Xbar)
+
+# Then explain.
+```
+
+
+# Problem 2
+This data is taken from one of the MBA classes at TTU and asked my students whether they had had breakfast that day? In the following code, we extract the breakfast data of male and female students.
+
+
+```{r}
+mba <- read.csv("http://tiny.cc/fa18classData" )
+
+male <- mba$today.breakfast[mba$gender=="Male"]
+
+female <- mba$today.breakfast[mba$gender=="Female"]
+
+tabMale <- table(male)
+tabMale
+
+tabFemale <- table(female)
+tabFemale
+
+sum(mba$gender=='Male')
+sum(mba$gender == 'Female')
+```
+
+a) How many stududents are male and how many are female? (5 points)
+
+From the table and our count using the sum function we can see there are 26 males and 19 females.
+
+b) What proportion of male and female students said Yes for having breakfast that day? (5 points)
+
+According to our data 69% of males and 63% of females stated that they had eaten breakfast on that day.
+
+```{r}
+# you can use prop.tabl() function: E.g., 
+round(prop.table(tabMale),2)
+round(prop.table(tabFemale),2)
+```
+
+c) Conduct a two sample proportion test; is there significant evidence that the proportion of male students had breakfast that date is different from female students with alpha = 0.05? Show your work (e.g., what is the test statistic, p-value?) (10 points)
+
+Because our Zstat is not more than qnorm we fail to reject the null hypothesis at 5% significe.  This means that the difference between males and females who ate breakfast is not significantly more than 0.  Our p-value is 34% which is not supprising because we at we failed to reject our null.
+
+
+```{r}
+# H0: p1 - p2 = 0
+muPhat.diff = 0
+# P1: p1 - p2 not-equal 0
+#prop.test(table(mba$gender,mba$today.breakfast), correct = FALSE)
+
+n1 = 26
+n2  =19
+n = n1+n2
+phat1 = .69
+phat2 = .63
+muPhat.diff = 0
+sigmaPhat.diff = sqrt(phat1*(1-phat1)/n1 + phat2*(1-phat2)/n2)
+Zstat = (phat1-phat2-muPhat.diff)/sigmaPhat.diff
+Zstat
+alpha = .05
+qnorm(1-alpha)
+Zstat > qnorm(1-alpha)
+pvalue = 1-pnorm(Zstat) #pvalue
+pvalue
+
+```
+
+
+
+# Problem 3
+A manufacturing company is interested in whether they can save money by adopting a shorter training period while still achieving desired outcomes for employees. Researchers sampled 15 employees to participate in traditional 3-day training and 15 to participate in revised 2-day training. After the training was complete, the researchers compared exit test scores between the two groups (scores are shown in the following data). 
+
+```{r}
+score <- read.csv("http://tiny.cc/training_data")
+
+d_i = score$traditional.training - score$revised.training
+df = 14
+mu.diff = mean(score$traditional.training)-mean(score$revised.training)
+mu.diff
+sd.diff = sd(score$traditional.training)-sd(score$revised.training)
+sigmamudiff = qt(.975, df)*sd.diff/sqrt(15)
+
+lower=mu.diff + sigmamudiff
+upper = mu.diff - sigmamudiff
+upper
+lower
+
+```
+
+a) In order to compare the two methods of training, what type of test we need to use? Are the data of two training methods dependent on each other? Why? (5 points)
+
+To test the two methods we need to use a two sample test for paired comparison.   Our two are not dependent on each other because different people were given different tests.  The sample groups are not the same.
+
+
+b) At alpha = 0.05 and assuming that the population is normally distributed, is there significant evidence that the two methods achieve different results? (10 points) 
+
+Because mu d is not in our confidence interval we must reject the null hypothesis.  There is a statistically significant difference in our employees performance on the test after the different trainings.  WE found that the true value of mu d lies between -3.085 and -2.782, which does not contain zero.
+
+```{r}
+# If you assume Mu1 and Mu2 are the true mean scores for traditional and revised training respectively, then you can set your hypothesis as follows:
+# H0: Mu1 - Mu2 = 0
+# H1: Mu1 - Mu2 not= 0
+
+
+# P1: p1 - p2 not-equal 0
+
+
+
+```
+
+
+# Problem 4
+Use the TTU graduate student exit survey data. 
+
+```{r}
+grad <- read.csv("http://westfall.ba.ttu.edu/isqs6348/Rdata/pgs.csv", header = T)
+```
+
+Two variables of interest are FacTeaching, a 1,2,3,4,5 rating of teaching at TTU by the student, and COL, the college from which the student graduated. 
+
+a) Test the independence between FacTeaching and COL variables at alpha = 0.05. (10 points)
+
+In our test our test statistic is greater than 55.66 which means we reject the null hypothesis.  These variables are not independent.
+
+```{r}
+# In this problem, we test the independence between two categorical variables. We did this in Module 2 (conditional probability) by creating a contingency table and checking whether P(A and B) = P(A)*P(B) or not. This time we want to implement a hypothesis test to conclude whether the dependence between two variables is significant or not.
+# Null hypothesis assumes two variables are independent.
+# Alternative hypothesis assumes they are dependent to each other.
+# You need to make a contingency table, then run a chi-squared test. Lecture 11, part 8 helps you to do this. 
+chisq.test(grad$COL, grad$FacTeaching)
+obs.table <- table(grad$COL, grad$FacTeaching)
+obs.table
+mosaicplot(t(obs.table), col = 2:3)
+rowsum = rowSums(obs.table)
+colsum = colSums(obs.table)
+exp.table <- obs.table
+for (i in 1:nrow(obs.table)){
+  for (j in 1:ncol(obs.table)){
+    exp.table[i,j] = rowsum[i]*colsum[j]/n
+    
+  }
+}
+exp.table
+mosaicplot(t(exp.table), col = 2:3)
+X2stat = sum(obs.table-exp.table)^2/exp.table
+X2stat
+df = (nrow(obs.table)-1)*(ncol(obs.table)-1)
+qchisq(1-.05,df)
+X2stat > qchisq(1-.05,df)
+```
+
+
+b) Remove a row or column of the contingency table having a very low count. After removing the outlier data that you discovered, re-construct the independence test again. This answer is more precise. (10 points)
+
+Se below we've recreated the table less row five.
+
+```{r}
+# Hint: If you put colleges in rows of your contingency table, then the fifth row is associated with dual college and you can remove it as an outlier. This is how to remove row 5:
+obs.table <- table(grad$COL, grad$FacTeaching)
+obs.table <- obs.table[-5,]
+
+mosaicplot(t(obs.table), col = 2:3)
+rowsum = rowSums(obs.table)
+colsum = colSums(obs.table)
+exp.table <- obs.table
+for (i in 1:nrow(obs.table)){
+  for (j in 1:ncol(obs.table)){
+    exp.table[i,j] = rowsum[i]*colsum[j]/n
+    
+  }
+}
+exp.table
+mosaicplot(t(exp.table), col = 2:3)
+X2stat = sum(obs.table-exp.table)^2/exp.table
+X2stat
+df = (nrow(obs.table)-1)*(ncol(obs.table)-1)
+qchisq(1-.05,df)
+X2stat > qchisq(1-.05,df)
+
+
+#that's how you do it. Then repeat part a.
+```
+
+

@@ -1,0 +1,193 @@
+---
+title: "R Assignment 1"
+author: "Alireza Sheikh-Zadeh, PhD"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+Document format: Follow the instructions given on the web page. Always review your solution word document before submission. 
+
+Plagiarism: You are not allowed to share your write-up with your peers. It's okay to advise your peers about how to solve problem, but you never share your own write-up.
+
+
+Problem 1: 34 points 
+
+Problem 2: 46 points
+
+Format: 20 points
+
+
+# Problem 1 (34 points)
+The production of beer is a multibillion-dollar worldwide industry. The dataset in the following link include the alcohol per volume and calories of famous beer brands. 
+
+```{r}
+mydata <- read.csv("http://tiny.cc/isqs5347-beer")
+```
+
+a. Compute the following statistics for variables "Alcohol" and "Calories": mean, median, variance,	standard deviation,	Q1 & Q3, and interquartile range. (14 points)
+
+
+```{r}
+summary(mydata)
+```
+
+###Standard Deviation Alcohol:
+
+```{r}
+sd(mydata$Alcohol)
+```
+
+###Variance Alcohol:
+
+```{r}
+var(mydata$Alcohol)
+```
+
+###IQR Alcohol:
+
+```{r}
+IQR(mydata$Alcohol)
+```
+
+###Standard Deviaton Calories:
+
+```{r}
+sd(mydata$Calories)
+```
+
+##Variance Calories:
+
+```{r}
+var(mydata$Calories)
+```
+
+###IQR Calories:
+
+```{r}
+IQR(mydata$Calories)
+```
+
+b.	Create separate boxplots for variables "Alcohol" and "Calories". Are there any outliers for each variable (8 points). 
+
+```{r}
+boxplot(mydata$Alcohol,xlab = 'Alcohol', horizontal = TRUE, main = 'Box Plot Alcohol')
+```
+
+```{r}
+boxplot(mydata$Calories, xlab = 'Calories', horizontal = TRUE, main = 'Box Plot Calories')
+```
+
+
+###There There are numerous outliers for both variables.  
+
+
+c.	Create separate histograms for variables "Alcohol" and "Calories". Make sure the y-axes presents the relative frequency (a value between 0 and 1). (6 points)
+
+```{r}
+hist(mydata$Alcohol, freq = FALSE, main = 'Histogarm of Alcohol', ylab = '
+Relative Frequency', xlab =  'Alcohol')
+```
+
+```{R}
+hist(mydata$Calories, freq = FALSE, main = 'Histogarm of Calories', ylab = '
+Relative Frequency', xlab = 'Calories')
+```
+
+d. Are variables "Alcohol" and "Calories" skewed or symmetrical?  If skewed, in which direction? What that means, explain. (6)
+  
+```{r}
+library(e1071)
+skewness(mydata$Alcohol)
+skewness(mydata$Calories)
+
+```
+###Based on the tails of the histograms, and the positive values from the skewness calculation, we can conclude that the mean of these data are larger than the median of these data.  The histograms are skewed right.
+
+# Problem 2 (46 points)
+Use the TTU graduate student exit survey data. 
+
+```{r}
+grad <- read.csv("http://westfall.ba.ttu.edu/isqs6348/Rdata/pgs.csv", header = T)
+attach(grad)
+```
+
+Two variables of interest are "FacTeaching", a 1,2,3,4,5 rating of teaching at TTU by the student, and "COL", the college from which the student graduated. 
+
+a. Construct the contingency table showing counts of students in all combinations of these two variables. (10 points)
+
+```{r}
+contingencyCounts <- table( COL,FacTeaching)
+contingencyCounts
+```
+
+
+b. Construct a contingency table showing the proportion (probability) of students in all combinations of these two variables (5 points). Round results by three decimals (1 points). 
+
+```{r}
+contingencyProb <- round(contingencyCounts/nrow(grad),3)
+contingencyProb
+```
+c. What is the probability that a randomly selected student is from college of business administration (BA)? We call this the marginal probability, P(COL=BA). (5 points)  
+
+```{r}
+rowSums(contingencyProb)
+```
+
+###The probability that a randomly selected student is from BA is 13.1%
+
+
+d. What is the probability that a randomly selected student is from BA and rates the teaching quality by 5? We call this the joint probability, P(COL = BA and FacTeaching = 5). (5 points)
+
+###There is a 3.3% chance that a student is from the college of business administration and rates the teaching quality 5.
+
+```{r}
+# Hint: You can find the answer in the table you made in part c. Just report the probability value for the intersection of BA and 5. For example, the P(COL=AG and FacTeaching = 3) = 0.013. 
+```
+
+
+e. Given that a randomly selected student is from BA, what is the probability that he/she rates the teaching quality by 5? We call this the conditional probability, P(FacTeaching = 5 | COL=BA). (5 points)
+```{r}
+3.3/13.1
+```
+###There is a 25.2% chance that the teaching quality is rated 5 given that the student is from Business Administration.
+
+```{r}
+# Hint: Use the conditional probability formula. You can use the answer to part c and d as inputs for conditional probability formula.
+```
+
+f. Given that a randomly selected student is from college of education (ED), what is the probability that he/she rates the teaching quality by 5? In other words P(FacTeaching = 5 | COL=ED)? What is your conclusion about the difference between the quality of teaching in BA and ED. (5 points)
+
+```{r}
+4.6/11.9
+```
+
+###There is a 38.7% chance that a student rates the teaching quality 5 given that the student is from Education.  Clearly a greater percentage of students in the Education dept. think their teaching merits a 5.
+
+g. What is the probability that a randomly selected student is fully happy about the teaching quality at TTU, hence rates FacTeaching = 5? We call this the marginal probability, P(FacTeaching=5). (5 points)
+
+```{r}
+colSums(contingencyProb)
+```
+
+### There is a 28.5% chance that a student is fully satisfied with the teaching at TTU.
+
+```{r}
+# Hint: For finding the P(FacTeaching = 5), you can perform colSums of table in part b (if you defined FacTeaching as columns). 
+```
+
+h. Given that a randomly selected student rates the teaching quality by 5, what is the probability that he/she is graduated from BA? The P(COL=BA | FacTeaching = 5). (5 points)
+
+```{r}
+3.3/28.5
+```
+
+### There is an 11.6% chance that a student is from the college of business given that they rate teh teaching a 5.
+
+```{r}
+# You can use the answer to part g and d as inputs for conditional probability formula.
+```
+
+
+
